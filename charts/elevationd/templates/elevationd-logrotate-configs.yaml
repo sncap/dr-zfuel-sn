@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '{{ template "fullname" . }}-logrotate'
+data:
+  elevationd: |-
+    /var/log/elevationd/elevationd.log {
+        notifempty
+        compress
+        missingok
+        daily
+        rotate 5
+        create 0644 root root
+
+        postrotate
+            /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+
+    }

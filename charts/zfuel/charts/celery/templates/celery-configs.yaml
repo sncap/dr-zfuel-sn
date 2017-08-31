@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zonar{{ template "fullname" . }}
+data:
+  braintree.xml: |-
+    <braintree>
+        <public_key>{{ .Values.braintree.pubic_key }}</public_key>
+        <private_key>{{ .Values.braintree.private_key }}</private_key>
+        <environment>{{ .Values.braintree.environment }}</environment>
+        <merchant_id>{{ .Values.braintree.merchant_id }}</merchant_id>
+    </braintree>
+  cassandra.xml : |-
+    <cassandra>
+        <server>
+            <host>{{ .Values.cassandra.host1 }}</host>
+            <port>{{ .Values.cassandra.port1 }}</port>
+        </server>
+        <server>
+            <host>{{ .Values.cassandra.host2 }}</host>
+            <port>{{ .Values.cassandra.port2 }}</port>
+        </server>
+    </cassandra>
+  celery.xml : |-
+    <celery>
+        <broker>amqp://{{ .Values.rabbitmq.uname }}:{{ .Values.rabbitmq.passwd }}@{{ .Values.rabbitmq.host }}:{{ .Values.rabbitmq.port }}/{{ .Values.rabbitmq.vhost }}</broker>
+        <backend>amqp://{{ .Values.rabbitmq.uname }}:{{ .Values.rabbitmq.passwd }}@{{ .Values.rabbitmq.host }}:{{ .Values.rabbitmq.port }}/{{ .Values.rabbitmq.vhost }}</backend>
+    </celery>
+  config_manager.xml : |-
+    <account>
+        <passwd>{{ .Values.config_manager.passwd }}</passwd>
+        <uname>{{ .Values.config_manager.uname }}</uname>
+        <db>{{ .Values.config_manager.db }}</db>
+        <host>{{ .Values.config_manager.host }}</host>
+        <port>{{ .Values.config_manager.port }}</port>
+    </account>
+  gpsloader.xml : |-
+    <positionloaderconfig>
+    <log>
+      <logstyle>stderr</logstyle>
+      <loglevel>debug</loglevel>
+      <logpath>/tmp/logout.txt</logpath>
+      <logname>positionloader</logname>
+      <syslogname>foobar</syslogname>
+      <facility>LOG_LOCAL2</facility>
+    </log>
+      <tosecs>40</tosecs>
+      <admin_accnt_file>/opt/zonar/etc/zadmin.xml</admin_accnt_file>
+  logexporter.xml : |-
+    <positionxportconfig>
+      <admin_accnt_file>/opt/zonar/etc/zadmin.xml</admin_accnt_file>
+      <log>
+        <logstyle>stderr</logstyle>
+        <syslogname>positionexport</syslogname>
+        <facility>LOG_LOCAL2</facility>
+        <loglevel>debug</loglevel>
+        <messagebuf>false</messagebuf>
+      </log>
+      <conntype>direct</conntype>
+    </positionxportconfig>
+  memcache.xml : |-
+    <memcached>
+        <server port="11211">tk1-memcache-dev</server>
+        <lifetime key="ACCOUNT">600</lifetime>
+        <lifetime key="GPSUNIT">520</lifetime>
+        <lifetime key="LAYOUT">900</lifetime>
+        <default_lifetime>120</default_lifetime>
+    </memcached>
+  redis.xml : |-
+    <redis>
+        <server>dev-red-001:6379</server>
+    </redis>
+  reportloader.xml : |-
+    <gprsdconfig>
+      <admin_accnt_file>/opt/zonar/etc/zadmin.xml</admin_accnt_file>
+      <log>
+        <logstyle>syslog</logstyle>
+        <logname>reportloader</logname>
+        <syslogname>reportloader</syslogname>
+        <facility>LOG_LOCAL2</facility>
+        <loglevel>debug</loglevel>
+      </log>
+      <fileroot>/var/gprsd</fileroot>
+      <inspfileroot>/vol/shared/Reports</inspfileroot>
+      <tempdir>tmp</tempdir>
+      <baddir>jail</baddir>
+      <gooddir>good</gooddir>
+      <dupedir>dupe</dupedir>
+      <stdbydir>standby</stdbydir>
+      <email>darren@zonarsystems.com</email>
+      <port>9827</port>
+      <debug>true</debug>
+      <runuser>gprsd</runuser>
+      <reloadsecs>0</reloadsecs>
+      <errordir>/var/gprsd/errs</errordir>
+      <unassigned>resend</unassigned>
+      <inactive>discard</inactive>
+      <keyringdir>/opt/zonar/etc/zonarkeys</keyringdir>
+      <keyringfile>keyring.xml</keyringfile>
+      <memcache_file>/opt/zonar/etc/memcache.xml</memcache_file>
+      <pidfile>/tmp/gprsd.pid</pidfile>
+      <statswindow dbstore="Y">1000</statswindow>
+      <fwurl>http://gant.foxbat-hi.com/gpsfware</fwurl>
+    </gprsdconfig>
+  sumo_api.xml : |-
+    <account>
+      <username>{{ .Values.sumo_username }}</username>
+      <password>{{ .Values.sumo_password }}</password>
+    </account>
+  zadmin.xml : |-
+    <account>
+      <passwd>{{ .Values.admin.passwd }}</passwd>
+      <uname>{{ .Values.admin.uname }}</uname>
+      <db>{{ .Values.admin.db }}</db>
+      <host>{{ .Values.admin.host }}</host>
+      <port>{{ .Values.admin.port }}</port>
+    </account>
+  zapy-cassandra.xml : |-
+    <cassandra>
+      <node>{{ .Values.cassandra.host1 }}:{{ .Values.cassandra.port1 }}</node>
+      <node>{{ .Values.cassandra.host2 }}:{{ .Values.cassandra.port2 }}</node>
+    </cassandra>
+  zapy_user.xml : |-
+    <account>
+        <passwd>{{ .Values.zuser.account.passwd }}</passwd>
+        <uname>{{ .Values.zuser.account.uname }}</uname>
+    </account>
+  zapy.xml : |-
+    <zapy>
+      <host>{{ .Values.zapy.url }}</host>
+      <port>{{ .Values.zapy.port }}</port>
+    </zapy>
+  zfuel.conf : |-
+    [zookeeper]
+    max_leases_per_cluster=6
+    [timeouts]
+    soft=15
+    hard=30
+
+  zookeeper.xml : |-
+    <?xml version="1.0"?>
+    <zookeeper>
+        <host port="{{ .Values.zookeeper.port }}">{{ .Values.zookeeper.cluseterZookeeperServiceName }}</host>
+    </zookeeper>
+  zpass_cel.conf : |-
+    [zapy]
+    host=dev-zapy-002
+    port=8888
+
+    [cassandra]
+    keyspace=zpass_dev
+
+    [zpass]
+    rider_min_trip_distance=804.5
+    rider_max_trip_distance=321869
+    rider_min_trip_time=180
+    rider_max_trip_time=10800
+    driver_min_trip_distance=804.5
+    driver_max_trip_distance=643738
+    driver_min_trip_time=180
+    driver_max_trip_time=36000
+    aide_min_trip_distance=804.5
+    aide_max_trip_distance=643738
+    aide_min_trip_time=180
+    aide_max_trip_time=36000
+
+    [vu]
+    user={{ .Values.rabbitmq.uname }}
+    pass={{ .Values.rabbitmq.passwd }}
+    vhost={{ .Values.rabbitmq.vhost }}
+    host={{ .Values.rabbitmq.host }}
+    scan_routing_key=sync_scans
+    scan_exchange=vu_scan_sync
+    scan_queue=vu_scan_sync
+    student_routing_key=sync_students
+    student_exchange=vu_student_sync
+    student_queue=vu_student_sync
+    max_swipes=5000
+  zpassplus.xml : |-
+    <account>
+        <passwd>{{ .Values.zpp.passwd }}</passwd>
+        <uname>{{ .Values.zpp.uname }}</uname>
+        <db>{{ .Values.zpp.db }}</db>
+        <host>{{ .Values.zpp.host }}</host>
+        <port>{{ .Values.zpp.port }}</port>
+    </account>
+  createQueue.py: |-
+    #!/usr/bin/env /opt/zonar/python/python-2.7/bin/python2.7
+    import pika
+    
+    credentials = pika.PlainCredentials("{{ .Values.rabbitmq.uname }}", "{{ .Values.rabbitmq.passwd }}")
+    parameters = pika.ConnectionParameters("{{ .Values.rabbitmq.host }}",
+                                           {{ .Values.rabbitmq.port }},
+                                           "{{ .Values.rabbitmq.vhost }}",
+                                           credentials)
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+    {{- range $queue := .Values.celery.queues }}
+    channel.queue_declare(queue='$queue')
+    {{- end }}

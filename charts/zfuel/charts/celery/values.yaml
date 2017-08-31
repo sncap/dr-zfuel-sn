@@ -1,0 +1,124 @@
+# Default values for celery.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+zonar_apps:
+  zonar-python-fabric2.7: 0.0.0 \
+  zonar-python-pip2.7: 0.0.0 \
+  zonar-python-virtualenv2.7: 0.0.0
+
+images:
+  celery: gcr.io/sds-readiness/celery:prod
+  memcache: memcached:alpine
+  pullPolicy: Always
+
+replicaCount: 2
+
+service:
+  name: celery
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 80
+  memcache:
+    port: 11211
+    name: celery-memcached
+    type: ClusterIP
+ingress:
+  enabled: false
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - chart-example.local
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+resources:
+  memcache:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  celery:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+braintree:
+  public_key: zz4qc5w6g4fwvc29
+  private_key: prbcmxffrfx27q9z
+  environment: production
+  merchant_id: xpwj37chcgnw3b52
+cassandra:
+  host1: dev-cas-001
+  port1: 9160
+  host2: dev-cas-002
+  port2: 9160
+
+celery:
+  queues:
+  - zhos
+  - zhos_hossummary
+  - zhos_hipri
+  - zpass
+  - zfuel
+
+rabbitmq:
+  host: zapy-rabbitmq
+  port: 5672
+  uname: csquared
+  passwd: csqdev
+  vhost: csquared
+
+zookeeper:
+  cluseterZookeeperServiceName: zookeeper
+  port: 2181
+
+config_manager:
+  passwd: snator9
+  uname: postgres
+  db: config_manager_dev
+  host: dev-db-008
+  port: 5432
+redis:
+  server: dev-red-001.sea-001.zonarsystems.net
+  port: 6379
+sumo_username: devops@zonarsystems.com
+sumo_password: 2m-098hjKmQ
+admin:
+  passwd: snator9
+  uname: postgres
+  db: zadmin_dev
+  host: dev-zadmin
+  port: 5432
+  namespace: public
+zapy:
+  host: dev-zapy-002
+  port: 8888
+zpp:
+  passwd: snator9
+  uname: postgres
+  db: zpassplus_dev
+  host: dev-db-007
+  port: 5432
+zuser:
+  account:
+    passwd: z4pySup3rd3v
+    uname: zapy_agent
+smoke:
+  celery:
+    retry: 3
+    retryDelay: 10
+    maxTime: 30
+    retryMaxTime: 60
+    queueUri: https://zapy-rabbitmq:5672/csquared/zhos
+
+parent:
+  name: zfuel

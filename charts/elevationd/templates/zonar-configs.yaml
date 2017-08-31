@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '{{ template "fullname" . }}-zonar-configs'
+data:
+  cassandra.xml: |-
+    <?xml version="1.0"?>
+    <cassandra>
+        <server>
+            <host>cas-012.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+        <server>
+            <host>cas-013.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+        <server>
+            <host>cas-014.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+        <server>
+            <host>cas-015.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+        <server>
+            <host>cas-016.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+        <server>
+            <host>cas-017.sea-001.zonarsystems.net</host>
+            <port>9160</port>
+        </server>
+    </cassandra>
+
+  zadmin.xml: |-
+    <account>
+    	<passwd>admin</passwd>
+    	<uname>postgres</uname>
+    	<db>zadmin</db>
+    	<host>dev-db-003.sea-001.zonarsystems.net</host>
+        <port>5432</port>
+    </account>

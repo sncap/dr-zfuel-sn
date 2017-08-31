@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: '{{ template "fullname" . }}-rsyslog'
+data:
+  elevationd.conf: |-
+    ## Elevationd logging
+
+    if $syslogfacility-text == 'local5' and $programname contains 'elevationd' then /var/log/elevationd/elevationd.log
+    if $syslogfacility-text == 'local5' and $programname contains 'elevationd' then stop

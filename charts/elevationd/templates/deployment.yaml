@@ -1,0 +1,68 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount.elevationd }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+    spec:
+      containers:
+        - name: {{ template "elevationd" . }}
+          image: "{{ .Values.image }}"
+          imagePullPolicy: "{{ .Values.pullPolicy }}"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          command: ["/bin/bash"]
+          args: ["-c", "
+            service rsyslog start;
+            su - zuser -c 'touch /var/log/elevationd/elevationd.log';
+            su - zuser -c '/opt/zonar/python/python-2.7/bin/python2.7 /opt/zonar/elevationd/bin/elevationd --config /opt/zonar/elevationd/etc/elevationd.conf --daemonize --pidfile /var/run/elevationd/elevationd.pid';
+            tail -f /var/log/elevationd/elevationd.log
+          "]
+          volumeMounts:
+          - name: elevationd-configs
+            mountPath: /opt/zonar/elevationd/etc
+            readOnly: true
+          - name: elevationd-rsyslog-configs
+            mountPath: /etc/rsyslog.d
+            readOnly: true
+          - name: elevationd-logrotate-configs
+            mountPath: /etc/logrotate.d
+            readOnly: true
+          - name: zonar-configs
+            mountPath: /opt/zonar/etc/
+            readOnly: true
+          livenessProbe:
+            exec:
+              command:
+              - cat
+              - /var/log/elevationd/elevationd.log
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: elevationd-configs
+          configMap:
+            name: '{{ template "fullname" . }}'
+            defaultMode: 0775
+        - name: elevationd-logrotate-configs
+          configMap:
+            name: '{{ template "fullname" . }}-logrotate'
+            defaultMode: 0775
+        - name: elevationd-rsyslog-configs
+          configMap:
+            name: '{{ template "fullname" . }}-rsyslog'
+            defaultMode: 0775
+        - name: zonar-configs
+          configMap:
+            name: '{{ template "fullname" . }}-zonar-configs'
+            defaultMode: 0775

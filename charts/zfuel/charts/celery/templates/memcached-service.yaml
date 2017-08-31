@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.parent.name }}-{{ .Chart.Name }}-memcache
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: {{ .Values.service.memcache.type }}
+  ports:
+  - port: {{ .Values.service.memcache.port }}
+    targetPort: {{ .Values.service.memcache.port }}
+    protocol: TCP
+    name: "memcachedport"
+  selector:
+    app: {{ template "memcache" . }}

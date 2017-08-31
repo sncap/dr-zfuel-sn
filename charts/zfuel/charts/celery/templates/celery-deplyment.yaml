@@ -1,0 +1,54 @@
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.parent.name }}-{{ .Chart.Name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+    spec:
+      
+      {{ $image := .Values.images.celery }}
+      {{ $pullPolicy := .Values.images.pullPolicy }}
+      {{ $port := .Values.service.internalPort }}
+      containers:
+      {{- range $queue := .Values.celery.queues }}
+      - name: {{ $queue | replace "_" "-" }}
+        image: "{{ $image }}"
+        imagePullPolicy: {{ $pullPolicy }}
+        ports:
+        - containerPort: {{ $port }}
+        command: ["/bin/bash"]
+        args: ["-c", "
+          service rsyslog start;
+          /usr/bin/env /opt/zonar/python/python-2.7/bin/pip install pika; 
+          /opt/zonar/etc/createQueue.py;
+          mkdir -p /var/run/csquared/;
+          mkdir -p /var/log/csquared/;
+          /opt/zonar/python/python-2.7/bin/python2.7 -m celery worker -A csquared.tasks --autoscale=40,3 --without-gossip --pidfile=/var/run/csquared/%n.pid --logfile=/var/log/csquared/%n.log --loglevel=DEBUG -Q {{ $queue }} --hostname=localhost;
+        "]
+
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /var/run/csquared/celery.pid
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: zonar-config
+          mountPath: /opt/zonar/etc
+          readOnly: true
+        env:
+      {{- end }}
+      volumes:
+      - name: zonar-config
+        configMap:
+          name: 'zonar{{ template "fullname" . }}'
+          defaultMode: 0775
+
